@@ -1,0 +1,16 @@
+HelloWorld language
+
+program ::= {statement}
+statement ::= "PRINT" (expression | string | function_call | ident) nl
+            | "IF" comparison "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" nl
+            | "WHILE" comparison "REPEAT" nl {statement} "ENDWHILE" nl
+            | "FUNC" ident "(" [ident {"," ident}] ")" nl {statement} "ENDFUNC" nl
+            | "RETURN" expression nl
+            | "LET" ident "=" expression nl
+            | "INPUT" ident nl
+comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
+expression ::= term {( "-" | "+" ) term}
+term ::= unary {( "/" | "*" ) unary}
+unary ::= ["+" | "-"] primary
+primary ::= number | ident
+nl ::= '\n'+

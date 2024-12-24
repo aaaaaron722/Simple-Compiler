@@ -1,0 +1,31 @@
+PRINT"It's a simple language called HelloWorld"
+PRINT"Here is example"
+
+LET x = 11
+IF x > 10 THEN
+    IF x < 15 THEN
+        PRINT "x greater than 10 but less than 15"
+        IF x > 12 THEN
+            PRINT "x larger than 12"
+        ELSE
+            PRINT "x less than 12"
+        ENDIF
+    ENDIF
+ENDIF
+
+# while demonstration
+WHILE x < 10 REPEAT
+    PRINT "x less than 10"
+ENDWHILE
+
+# function
+LET a = 5
+LET y = 5
+FUNC add(a, y)
+    LET c = a+y
+    PRINT "infunction"
+    RETURN c
+ENDFUNC
+
+PRINT add(a, y)
+PRINT a

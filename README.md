@@ -7,3 +7,5 @@
 
 This tutorial is very helpful for beginner who are learning Compiler Design. Strong recommendation.
 
+### How to use this document
+Step 1: Clone this repository and import the lex.py in your code
