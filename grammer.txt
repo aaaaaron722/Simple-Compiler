@@ -1,7 +1,7 @@
 HelloWorld language:
 
 program ::= {statement}
-statement ::= "PRINT" (expression | string | function_call) newline
+statement ::= "PRINT" (expression | string ) newline
             | "IF" comparison {Boolean} "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" newline
             | "WHILE" comparison {boolean} "REPEAT" {statement} "ENDWHILE" newline
             | "FUNC" ident "(" [ident {"," ident}] ")" newline {statement} "ENDFUNC" newline

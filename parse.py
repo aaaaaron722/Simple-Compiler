@@ -61,7 +61,7 @@ class Parser:
     def statement(self):
         # Check the first token to see what kind of statement this is.
 
-        # "PRINT" (expression | string | function_call)
+        # "PRINT" (expression | string)
         if self.checkToken(TokenType.PRINT):
             self.nextToken()
 

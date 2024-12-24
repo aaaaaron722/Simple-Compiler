@@ -1,0 +1,22 @@
+PRINT "Here is example 7: A compare with B, which one is bigger? and Sum is?"
+LET x = 0
+LET y = 0
+FUNC add(x, y)
+    LET result = x + y
+    RETURN result
+ENDFUNC
+PRINT "Please input a"
+INPUT a
+PRINT "Please input b"
+INPUT b
+
+IF a > b THEN
+    PRINT "a is greater than b"
+ELSE
+    PRINT "a is not greater than b"
+ENDIF
+
+LET sum = add(a, b)
+PRINT "The sum of a and b is:"
+PRINT sum
+

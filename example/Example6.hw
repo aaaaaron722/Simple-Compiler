@@ -7,8 +7,8 @@ LET b = 1
 FUNC fibonacci(a, b, nums)
     WHILE nums > 0 REPEAT
         PRINT a
-        LET c = a + b
-        LET a = b
+        LET c = a + b # f(n) = f(n - 1) + f(n - 2)
+        LET a = b # f(n) = f(n + 1)
         LET b = c
         LET nums = nums - 1
     ENDWHILE
