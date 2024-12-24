@@ -1,0 +1,7 @@
+PRINT"Here is example 4: Input a number whether it greater than 5 or not?"
+INPUT num
+IF num < 10 AND num >= 5 THEN
+    PRINT"Your input between 5 and 10"
+ELSE
+    PRINT"Your input less than 5"
+ENDIF

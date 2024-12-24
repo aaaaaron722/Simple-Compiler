@@ -89,7 +89,7 @@ class Lexer:
 
             tokText = self.source[startPos : self.curPos] # Get the substring.
             token = Token(tokText, TokenType.STRING)
-
+            
         elif self.curChar.isdigit():
             # Leading character is a digit, so this must be a number.
             # Get all consecutive digits and decimal if there is one.
@@ -118,10 +118,12 @@ class Lexer:
             # Check if the token is in the list of keywords.
             tokText = self.source[startPos : self.curPos + 1] # Get the substring.
             keyword = Token.checkIfKeyword(tokText)
+ 
             if keyword == None: # Identifier
                 token = Token(tokText, TokenType.IDENT)
             else:   # Keyword
                 token = Token(tokText, keyword)
+                
         elif self.curChar == '\n':
             # Newline.
             token = Token('\n', TokenType.NEWLINE)
@@ -194,6 +196,9 @@ class TokenType(enum.Enum):
     ENDWHILE = 111
     ELSE = 112
     RETURN = 113
+    OR = 114
+    AND = 115
+    NOT = 116
     # Operators.
     EQ = 201  
     PLUS = 202

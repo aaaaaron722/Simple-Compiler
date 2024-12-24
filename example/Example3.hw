@@ -1,0 +1,8 @@
+PRINT"Here is example 3: add(10, 20)"
+LET a = 10
+LET b = 20
+FUNC add(a, b)
+    LET c = a + b
+    RETURN c
+ENDFUNC
+PRINT add(a, b)

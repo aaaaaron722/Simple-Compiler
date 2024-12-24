@@ -1,0 +1,7 @@
+PRINT"Here is example 1: Giving a number x equal 6"
+LET x = 6
+IF x>3 THEN
+    IF x<10 THEN
+        PRINT"x between 3 and 10"
+    ENDIF
+ENDIF

@@ -61,7 +61,7 @@ class Parser:
     def statement(self):
         # Check the first token to see what kind of statement this is.
 
-        # "PRINT" (expression | string | function_call | ident)
+        # "PRINT" (expression | string | function_call)
         if self.checkToken(TokenType.PRINT):
             self.nextToken()
 
@@ -69,42 +69,20 @@ class Parser:
                 # Simple string, so print it.
                 self.emitter.emitLine(f"print(\"{self.curToken.text}\")")
                 self.nextToken()
-                
-            elif self.checkToken(TokenType.IDENT):
-                function_name = self.curToken.text
-                self.nextToken()  # Move past the identifier
-
-                if self.checkToken(TokenType.LPARE):  # Check if it's a function call
-                    self.match(TokenType.LPARE)  # Expect '('
-                    self.emitter.emit(f"print({function_name}(")
-
-                    # Handle function parameters
-                    if self.checkToken(TokenType.IDENT) or self.checkToken(TokenType.NUMBER):
-                        self.expression()  # Parse the first argument
-                        while self.checkToken(TokenType.COMMA):
-                            self.emitter.emit(", ")
-                            self.nextToken()  # Skip the comma
-                            self.expression()  # Parse the next argument
-
-                    self.match(TokenType.RPARE)  # Expect ')'
-                    self.emitter.emitLine("))")  # Complete the function call
-                else:
-                    # It's an identifier, not a function call.
-                    self.emitter.emit("print(")
-                    self.emitter.emit(function_name)
-                    self.emitter.emitLine(")")
 
             else:
-                # Expect an expression
                 self.emitter.emit("print(")
                 self.expression()
-                self.emitter.emitLine(")")
+                self.emitter.emitLine(')')
 
-        # "IF" comparison "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" nl
+        # "IF" comparison {Boolean} "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" nl
         elif self.checkToken(TokenType.IF):
             self.nextToken()
             self.emitter.emit("if ")
-            self.comparison()
+            if self.isComparisonOperator():
+                self.comparison()  # Parses and emits the comparison
+            else:
+                self.boolean()
             self.emitter.emitLine(":")
             self.emitter.increaseIndent()
             
@@ -133,11 +111,14 @@ class Parser:
             self.match(TokenType.ENDIF)
 
 
-        # "WHILE" comparison "REPEAT" {statement} "ENDWHILE"
+        # "WHILE" comparison {boolean} "REPEAT" {statement} "ENDWHILE"
         elif self.checkToken(TokenType.WHILE):
             self.nextToken()
             self.emitter.emit("while ")
-            self.comparison()
+            if self.isComparisonOperator():
+                self.comparison()  # Parses and emits the comparison
+            else:
+                self.boolean()
             self.emitter.emitLine(":")
             self.emitter.increaseIndent()
             
@@ -213,7 +194,7 @@ class Parser:
 
             # Emit scanf but also validate the input. If invalid, set the variable to 0 and clear the input.
             self.emitter.emit(self.curToken.text + '=')
-            self.emitter.emitLine("input()")
+            self.emitter.emitLine("int(input())")
             self.match(TokenType.IDENT)
             
         # "RETURN" expression
@@ -225,15 +206,57 @@ class Parser:
             else: # error handling
                 raise SyntaxError("Return statement not in function")
             self.emitter.emitLine("")
-
+            
+        elif self.checkToken(TokenType.AND):
+            self.boolean()
+            print("AND")
+        elif self.checkToken(TokenType.OR):
+            self.boolean()
+            print("OR")
+        elif self.checkToken(TokenType.NOT):
+            self.boolean()
+            print("NOT")
         # This is not a valid statement. Error!
         else:
             self.abort("Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ")")
 
         # Newline.
         self.nl()
-
-
+         
+    # Boolean ::= BooleanExpr
+    def boolean(self):
+        self.BooleanExpr()
+        
+    # BooleanExpr ::= BooleanTerm { "OR" BooleanTerm }
+    def BooleanExpr(self):
+        self.BooleanTerm()
+        while self.checkToken(TokenType.OR):
+            self.emitter.emit(" or ")
+            self.nextToken()
+            self.BooleanTerm()
+    # BooleanTerm ::= BooleanFactor { "AND" BooleanFactor }
+    def BooleanTerm(self):
+        self.BooleanFactor()
+        while self.checkToken(TokenType.AND):
+            self.emitter.emit(" and ")
+            self.nextToken()
+            self.BooleanFactor()
+            
+    # BooleanFactor ::= "NOT" BooleanFactor | comparison | "(" BooleanExpr ")"
+    def BooleanFactor(self):
+        if self.checkToken(TokenType.NOT):
+            self.nextToken()
+            self.emitter.emit("not ")
+            self.BooleanFactor()
+        elif self.checkToken(TokenType.LPARE):
+            self.nextToken()
+            self.emitter.emit('(')
+            self.BooleanExpr()
+            self.checkToken(TokenType.RPARE)
+            self.emitter.emit(')')
+        else:
+            self.comparison()
+        
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
     def comparison(self):
         self.expression()
@@ -247,7 +270,6 @@ class Parser:
             self.emitter.emit(self.curToken.text)
             self.nextToken()
             self.expression()
-
 
     # expression ::= term {( "-" | "+" ) term}
     def expression(self):
@@ -278,19 +300,33 @@ class Parser:
         self.primary()
 
 
-    # primary ::= number | ident
+    # primary ::= number | ident | function_call
     def primary(self):
         if self.checkToken(TokenType.NUMBER): 
             self.emitter.emit(self.curToken.text)
             self.nextToken()
         elif self.checkToken(TokenType.IDENT):
-            # Ensure the variable already exists.
-            name = self.curToken.text
-            if name not in self.symbols:
-                self.abort("Referencing variable before assignment: " + self.curToken.text)
-
-            self.emitter.emit(self.curToken.text)
+            # Ensure the variable already exists and check the identifier is var or functionName
+            identName = self.curToken.text
+            if identName not in self.symbols:
+                self.abort("Referencing variable before assignment: " + identName)
             self.nextToken()
+            
+            if self.checkToken(TokenType.LPARE):
+                self.nextToken()
+                self.emitter.emit(f"{identName}(")
+                if self.checkToken(TokenType.IDENT) or self.checkToken(TokenType.NUMBER):
+                    self.expression()
+                    while self.checkToken(TokenType.COMMA):
+                        self.emitter.emit(", ")
+                        self.nextToken()  # Skip comma
+                        self.expression()  # Parse the next argument
+
+                self.match(TokenType.RPARE)
+                self.emitter.emit(')')
+            else:
+                self.emitter.emit(identName)
+
         else:
             # Error!
             self.abort("Unexpected token at " + self.curToken.text)

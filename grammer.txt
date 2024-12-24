@@ -1,16 +1,20 @@
-HelloWorld language
+HelloWorld language:
 
 program ::= {statement}
-statement ::= "PRINT" (expression | string | function_call | ident) nl
-            | "IF" comparison "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" nl
-            | "WHILE" comparison "REPEAT" nl {statement} "ENDWHILE" nl
-            | "FUNC" ident "(" [ident {"," ident}] ")" nl {statement} "ENDFUNC" nl
-            | "RETURN" expression nl
-            | "LET" ident "=" expression nl
-            | "INPUT" ident nl
+statement ::= "PRINT" (expression | string | function_call) newline
+            | "IF" comparison {Boolean} "THEN" nl {statement} ["ELSE" nl {statement}] "ENDIF" newline
+            | "WHILE" comparison {boolean} "REPEAT" {statement} "ENDWHILE" newline
+            | "FUNC" ident "(" [ident {"," ident}] ")" newline {statement} "ENDFUNC" newline
+            | "RETURN" expression newline
+            | "LET" ident "=" expression newline
+            | "INPUT" ident newline
+Boolean ::= BooleanExpr
+BooleanExpr ::= BooleanTerm { "OR" BooleanTerm }
+BooleanTerm ::= BooleanFactor { "AND" BooleanFactor }
+BooleanFactor ::= "NOT" BooleanFactor | comparison | "(" BooleanExpr ")"
 comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
 expression ::= term {( "-" | "+" ) term}
 term ::= unary {( "/" | "*" ) unary}
 unary ::= ["+" | "-"] primary
-primary ::= number | ident
-nl ::= '\n'+
+primary ::= number | ident | function_call
+newline ::= '\n'+

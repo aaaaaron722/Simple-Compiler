@@ -1,0 +1,6 @@
+PRINT"Here is example 2: If x=4 between 3 and 10?"
+LET x = 4
+IF x>3 AND x<10 THEN
+    PRINT"We use boolean successfully"
+    PRINT"x is among 3 and 10"
+ENDIF
